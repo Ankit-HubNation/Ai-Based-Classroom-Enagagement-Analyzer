@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Classroom Engagement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f0c29;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ── Animated mesh background ── */
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(120,40,200,0.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,180,255,0.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 60% 80%, rgba(255,60,120,0.2) 0%, transparent 50%),
+                #0f0c29;
+            animation: meshShift 8s ease-in-out infinite alternate;
+        }
+        @keyframes meshShift {
+            0%   { filter: hue-rotate(0deg) brightness(1); }
+            100% { filter: hue-rotate(30deg) brightness(1.15); }
+        }
+
+        /* ── Floating star particles ── */
+        .stars {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: twinkle ease-in-out infinite;
+        }
+        .star:nth-child(1)  { width:2px;  height:2px;  top:10%; left:15%; animation-duration:3s;   animation-delay:0s; }
+        .star:nth-child(2)  { width:3px;  height:3px;  top:25%; left:70%; animation-duration:4s;   animation-delay:1s; }
+        .star:nth-child(3)  { width:2px;  height:2px;  top:60%; left:30%; animation-duration:2.5s; animation-delay:0.5s; }
+        .star:nth-child(4)  { width:4px;  height:4px;  top:80%; left:80%; animation-duration:5s;   animation-delay:2s; }
+        .star:nth-child(5)  { width:2px;  height:2px;  top:45%; left:55%; animation-duration:3.5s; animation-delay:1.5s; }
+        .star:nth-child(6)  { width:3px;  height:3px;  top:15%; left:85%; animation-duration:4.5s; animation-delay:0.8s; }
+        .star:nth-child(7)  { width:2px;  height:2px;  top:70%; left:10%; animation-duration:3.2s; animation-delay:2.5s; }
+        .star:nth-child(8)  { width:3px;  height:3px;  top:35%; left:45%; animation-duration:2.8s; animation-delay:1.2s; }
+        .star:nth-child(9)  { width:2px;  height:2px;  top:90%; left:60%; animation-duration:4.2s; animation-delay:0.3s; }
+        .star:nth-child(10) { width:4px;  height:4px;  top:5%;  left:40%; animation-duration:3.8s; animation-delay:1.8s; }
+        @keyframes twinkle {
+            0%,100% { opacity: 0.1; transform: scale(1); }
+            50%      { opacity: 1;   transform: scale(1.5); }
+        }
+
+        /* ── Orbiting ring behind card ── */
+        .orbit-ring {
+            position: fixed;
+            z-index: 0;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            border: 1px solid rgba(160,100,255,0.12);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 20s linear infinite;
+        }
+        .orbit-ring::before {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(160,100,255,0.7);
+            top: -5px; left: 50%;
+            box-shadow: 0 0 12px rgba(160,100,255,0.9);
+        }
+        .orbit-ring-2 {
+            position: fixed;
+            z-index: 0;
+            width: 360px; height: 360px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,200,255,0.1);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 14s linear infinite reverse;
+        }
+        .orbit-ring-2::before {
+            content: '';
+            position: absolute;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(0,200,255,0.8);
+            bottom: -4px; left: 50%;
+            box-shadow: 0 0 10px rgba(0,200,255,0.9);
+        }
+        @keyframes spin {
+            from { transform: translate(-50%,-50%) rotate(0deg); }
+            to   { transform: translate(-50%,-50%) rotate(360deg); }
+        }
+
+        /* ── Login card ── */
+        .login-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 50px 42px 44px;
+            border-radius: 24px;
+            box-shadow:
+                0 0 0 1px rgba(160,100,255,0.15),
+                0 30px 80px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.08);
+            width: 360px;
+            text-align: center;
+            animation: cardIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes cardIn {
+            from { opacity:0; transform:translateY(50px) scale(0.92) rotateX(8deg); }
+            to   { opacity:1; transform:translateY(0)    scale(1)    rotateX(0deg); }
+        }
+
+        /* ── Icon ── */
+        .icon-wrap {
+            width: 76px; height: 76px;
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+            border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 22px;
+            font-size: 32px;
+            box-shadow: 0 8px 30px rgba(168,85,247,0.5);
+            animation: iconFloat 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+        @keyframes iconFloat {
+            0%,100% { transform: translateY(0) rotate(-2deg); box-shadow: 0 8px 30px rgba(168,85,247,0.5); }
+            50%      { transform: translateY(-8px) rotate(2deg); box-shadow: 0 20px 40px rgba(168,85,247,0.7); }
+        }
+
+        h2 {
+            color: #fff;
+            margin-bottom: 6px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+
+        /* ── Inputs ── */
+        .input-group { position: relative; margin: 14px 0; }
+        .input-icon {
+            position: absolute;
+            left: 15px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+            opacity: 0.35;
+            transition: opacity 0.2s;
+        }
+        .input-group:focus-within .input-icon { opacity: 1; }
+
+        input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #fff;
+            background: rgba(255,255,255,0.06);
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            outline: none;
+        }
+        input::placeholder { color: rgba(255,255,255,0.3); }
+        input:focus {
+            border-color: rgba(168,85,247,0.7);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 0 0 4px rgba(168,85,247,0.15), 0 0 20px rgba(168,85,247,0.1);
+        }
+
+        /* ── Button ── */
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.15s;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            border-radius: inherit;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(168,85,247,0.5);
+        }
+        button:active { transform: translateY(0); box-shadow: none; }
+
+        /* Ripple — unchanged */
+        .ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(255,255,255,0.35);
+            transform: scale(0);
+            animation: rippleAnim 0.55s linear;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
+
+        /* ── Flash messages ── */
+        .flash {
+            padding: 11px 16px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            font-weight: 500;
+            animation: fadeIn 0.4s ease;
+            background: rgba(220,38,38,0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(220,38,38,0.3);
+            text-align: left;
+        }
+        .flash.success {
+            background: rgba(34,197,94,0.15);
+            color: #86efac;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;} }
+
+        /* ── Divider & footer ── */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            margin: 24px 0 0;
+        }
+        .footer-text {
+            font-size: 11px;
+            color: rgba(255,255,255,0.2);
+            margin-top: 14px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg"></div>
+
+    <div class="stars">
+        <div class="star"></div><div class="star"></div><div class="star"></div>
+        <div class="star"></div><div class="star"></div><div class="star"></div>
+        <div class="star"></div><div class="star"></div><div class="star"></div>
+        <div class="star"></div>
+    </div>
+
+    <div class="orbit-ring"></div>
+    <div class="orbit-ring-2"></div>
+
+    <div class="login-card">
+        <div class="icon-wrap">🔐</div>
+        <h2>Admin Login</h2>
+        <p class="subtitle">Classroom Engagement Platform</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {% if category == 'success' %}success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="loginForm">
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required autocomplete="username">
+                <span class="input-icon">👤</span>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                <span class="input-icon">🔑</span>
+            </div>
+            <button type="submit" id="loginBtn">Login</button>
+        </form>
+
+        <div class="divider"></div>
+        <p class="footer-text">Secure admin access only</p>
+    </div>
+
+    <script>
+        // Ripple effect
+        const btn = document.getElementById('loginBtn');
+        btn.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            const rect = btn.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+            ripple.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+            btn.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // Loading state on submit
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            btn.textContent = 'Logging in…';
+            btn.style.opacity = '0.85';
+            btn.disabled = true;
+        });
+    </script>
+</body>
+</html>

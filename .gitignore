@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+database.db
+emotion_model.hdf5
+yolov8n.pt
+session_report.csv
+snapshot.jpg
+instance/

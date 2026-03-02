@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: auto;
+            animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes slideUp {
+            from { opacity:0; transform:translateY(30px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* Header card */
+        .header-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .header-card h2 {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .header-card h2 span { margin-right: 8px; }
+
+        .nav-links { display:flex; gap:10px; flex-wrap:wrap; }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Flash messages */
+        .flash {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: fadeIn 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;} }
+        .flash.success { background:#f0fff4; color:#276749; border:1px solid #c6f6d5; }
+        .flash.danger  { background:#fff5f5; color:#c53030; border:1px solid #fed7d7; }
+        .flash.info    { background:#ebf8ff; color:#2b6cb0; border:1px solid #bee3f8; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; }
+        table { width:100%; border-collapse:collapse; }
+        thead { background: linear-gradient(135deg, #667eea, #764ba2); }
+        thead th { color:white; padding:14px 16px; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s, transform 0.1s;
+        }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f8f7ff; }
+        td { padding: 13px 16px; font-size: 14px; color: #4a5568; }
+
+        /* ID badge */
+        .id-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea22, #764ba222);
+            color: #667eea;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid #667eea44;
+        }
+
+        /* Username */
+        .user-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 13px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn:active { transform: translateY(0); box-shadow: none; }
+        .btn-add    { background: linear-gradient(135deg, #28a745, #20863a); }
+        .btn-delete { background: linear-gradient(135deg, #dc3545, #b02030); }
+        .btn-back   { background: linear-gradient(135deg, #667eea, #5a67d8); }
+
+        /* Add user form */
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 160px;
+            position: relative;
+        }
+        .form-icon {
+            position: absolute;
+            left: 12px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .form-group:focus-within .form-icon { opacity: 1; }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 11px 14px 11px 38px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #2d3748;
+            background: #f8fafc;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            outline: none;
+        }
+        input:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
+        }
+        .form-submit { align-self: flex-end; }
+        .form-submit .btn { padding: 11px 22px; font-size: 14px; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header-card">
+            <h2><span>👥</span> User Management</h2>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="btn btn-back">⬅ Dashboard</a>
+                <a href="{{ url_for('chat') }}" class="btn" style="background:linear-gradient(135deg,#17a2b8,#117a8b);">💬 Chat</a>
+                <a href="{{ url_for('logout') }}" class="btn" style="background:linear-gradient(135deg,#6c757d,#545b62);">🚪 Logout</a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% else %}ℹ️{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Users Table -->
+        <div class="card">
+            <div class="card-title">📋 All Users</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td><span class="id-badge">#{{ user.id }}</span></td>
+                            <td>
+                                <div class="user-name">
+                                    <div class="avatar">{{ user.username[0].upper() }}</div>
+                                    {{ user.username }}
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_delete_user', user_id=user.id) }}"
+                                   class="btn btn-delete"
+                                   onclick="return confirm('Delete this user?')">🗑 Delete</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty-state">
+                                    <div class="empty-icon">👤</div>
+                                    No users found.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add User -->
+        <div class="card">
+            <div class="card-title">➕ Add New User</div>
+            <form method="POST" action="{{ url_for('admin_add_user') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" name="username" placeholder="Username" required>
+                        <span class="form-icon">👤</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="Password" required>
+                        <span class="form-icon">🔑</span>
+                    </div>
+                    <div class="form-submit">
+                        <button type="submit" class="btn btn-add">➕ Add User</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</body>
+</html>
