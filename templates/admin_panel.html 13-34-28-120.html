@@ -1,0 +1,25 @@
+<h2>Admin Panel</h2>
+
+<form method="POST" action="/add_user">
+<input name="username" placeholder="Username" required>
+<input name="password" placeholder="Password" required>
+<select name="role">
+<option value="user">User</option>
+<option value="admin">Admin</option>
+</select>
+<button type="submit">Add</button>
+</form>
+
+<table border="1">
+<tr><th>ID</th><th>User</th><th>Role</th><th>Action</th></tr>
+{% for user in users %}
+<tr>
+<td>{{ user[0] }}</td>
+<td>{{ user[1] }}</td>
+<td>{{ user[2] }}</td>
+<td><a href="/delete_user/{{ user[0] }}">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+
+<a href="/logout">Logout</a>

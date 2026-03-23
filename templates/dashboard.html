@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<h2>AI Dashboard</h2>
+
+<img src="/video" width="600">
+
+<h3>Engagement: <span id="eng"></span>%</h3>
+
+<script>
+setInterval(()=>{
+fetch('/engagement')
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("eng").innerText=data.engagement;
+});
+},2000);
+</script>
+
+<a href="/logout">Logout</a>
+
+</body>
+</html>

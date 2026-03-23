@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Analyzer - Admin Dashboard with Camera View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #a0a0c0;
+            font-size: 1.1em;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* User Management Section */
+        .user-management {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffd43b 0%, #f59f00 100%);
+            color: white;
+        }
+
+        .btn-camera {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-camera:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .user-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .user-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .role-badge {
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .role-admin {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .role-teacher {
+            background: #c8d6e5;
+            color: #0652DD;
+        }
+
+        .role-student {
+            background: #abebc6;
+            color: #009432;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .icon-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .edit-btn {
+            background: #f39c12;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .view-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .camera-btn {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .camera-btn.active {
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(39, 174, 96, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);
+            }
+        }
+
+        /* Analytics Cards */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .analytics-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .card-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Camera Grid Styles */
+        .camera-grid-container {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .camera-grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .camera-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .camera-feed {
+            background: #2d2d44;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+
+        .camera-feed video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #1a1a2e;
+        }
+
+        .camera-feed .student-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .camera-feed .student-name {
+            font-weight: 600;
+        }
+
+        .camera-feed .attendance-status {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-present {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-absent {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .status-attention {
+            background: #f39c12;
+            color: white;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .camera-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .camera-feed:hover .camera-controls {
+            opacity: 1;
+        }
+
+        .cam-control-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .cam-control-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Fullscreen Camera Modal */
+        .camera-modal {
+            max-width: 90vw;
+            width: 1200px;
+        }
+
+        .fullscreen-camera {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #1a1a2e;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fullscreen-camera video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .camera-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>📊 Classroom Analyzer Admin</h1>
+            <p>Complete control over your classroom management system with live camera monitoring</p>
+            <div class="admin-badge">
+                👑 Admin: John Doe (Administrator)
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="stats-card">
+                    <h3 style="margin-bottom: 15px;">Quick Stats</h3>
+                    <div class="stat-item">
+                        <span>Total Users</span>
+                        <span class="stat-value" id="totalUsers">156</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Active Today</span>
+                        <span class="stat-value" id="activeToday">42</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Classes</span>
+                        <span class="stat-value" id="totalClasses">12</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Cameras Online</span>
+                        <span class="stat-value" id="camerasOnline">28</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Pending Requests</span>
+                        <span class="stat-value" id="pendingRequests">3</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 15px;">Quick Actions</h3>
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="openGenerateModal()">
+                        ➕ Generate New User
+                    </button>
+                    <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;" onclick="openBulkUploadModal()">
+                        📤 Bulk Upload Users
+                    </button>
+                    <button class="btn btn-camera" style="width: 100%; margin-bottom: 10px;" onclick="toggleAllCameras()">
+                        📹 Toggle All Cameras
+                    </button>
+                    <button class="btn btn-warning" style="width: 100%;" onclick="exportData()">
+                        📥 Export Data
+                    </button>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">Camera Statistics</h3>
+                    <div style="background: white; padding: 15px; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Active Cameras:</span>
+                            <span style="font-weight: bold; color: #27ae60;" id="activeCamerasCount">24</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Students Present:</span>
+                            <span style="font-weight: bold; color: #27ae60;" id="studentsPresentCount">18</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Needs Attention:</span>
+                            <span style="font-weight: bold; color: #f39c12;" id="attentionCount">3</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Absent:</span>
+                            <span style="font-weight: bold; color: #e74c3c;" id="absentCount">2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">System Health</h3>
+                    <div style="background: #e0e0e0; height: 10px; border-radius: 5px; margin-bottom: 15px;">
+                        <div style="width: 95%; height: 100%; background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%); border-radius: 5px;"></div>
+                    </div>
+                    <p style="color: #666;">✅ System Operational</p>
+                    <p style="color: #666;">📹 Camera System: Online</p>
+                    <p style="color: #666;">🔄 Last backup: 2 min ago</p>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="user-management">
+                <h2 class="section-title">User Management & Camera Monitoring</h2>
+                
+                <!-- Tabs -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px;">
+                    <button class="btn" style="background: #667eea; color: white;" onclick="showTab('users')">👥 Users</button>
+                    <button class="btn" style="background: #f0f0f0;" onclick="showTab('cameras')">📹 Camera View</button>
+                    <button class="btn" style="background: #f0f0f0;" onclick="showTab('analytics')">📊 Analytics</button>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="usersTab">
+                    <!-- Filters -->
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <input type="text" class="form-control" placeholder="Search users..." style="max-width: 300px;" id="searchInput" onkeyup="filterUsers()">
+                        <select class="form-control" style="max-width: 200px;" id="roleFilter" onchange="filterUsers()">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
+                        </select>
+                        <select class="form-control" style="max-width: 200px;" id="statusFilter" onchange="filterUsers()">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="table-container">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Camera</th>
+                                    <th>Last Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- Users will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <div>
+                            Showing <span id="startCount">1</span> to <span id="endCount">10</span> of <span id="totalCount">156</span> entries
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" style="background: #f0f0f0;" onclick="prevPage()">Previous</button>
+                            <button class="btn" style="background: #667eea; color: white;" onclick="nextPage()">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cameras Tab -->
+                <div id="camerasTab" style="display: none;">
+                    <div class="camera-grid-container">
+                        <div class="camera-grid-header">
+                            <h3>Live Student Camera Feeds</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <select class="form-control" style="width: 200px;" id="classFilter" onchange="filterCameras()">
+                                    <option value="all">All Classes</option>
+                                    <option value="9A">Class 9A</option>
+                                    <option value="9B">Class 9B</option>
+                                    <option value="10A">Class 10A</option>
+                                    <option value="10B">Class 10B</option>
+                                    <option value="11C">Class 11C</option>
+                                </select>
+                                <button class="btn btn-camera" onclick="refreshCameras()">
+                                    🔄 Refresh Feeds
+                                </button>
+                            </div>
+                        </div>
+                        <div class="camera-grid" id="cameraGrid">
+                            <!-- Camera feeds will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div id="analyticsTab" style="display: none;">
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <div class="card-icon">📚</div>
+                                <div>
+                                    <div class="card-title">Average Attendance</div>
+                                    <div class="card-value">87%</div>
+                                </div>
+                            </div>
+                            <p style="color: #51cf66;">↑ 5% from last month</p>
+                        </div>
+
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <div class="card-icon">📹</div>
+                                <div>
+                                    <div class="card-title">Camera Coverage</div>
+                                    <div class="card-value">92%</div>
+                                </div>
+                            </div>
+                            <p style="color: #51cf66;">28/30 students online</p>
+                        </div>
+
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <div class="card-icon">⏰</div>
+                                <div>
+                                    <div class="card-title">Class Completion</div>
+                                    <div class="card-value">94%</div>
+                                </div>
+                            </div>
+                            <p style="color: #51cf66;">On track</p>
+                        </div>
+
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <div class="card-icon">💬</div>
+                                <div>
+                                    <div class="card-title">Participation Rate</div>
+                                    <div class="card-value">82%</div>
+                                </div>
+                            </div>
+                            <p style="color: #f39c12;">Needs improvement</p>
+                        </div>
+                    </div>
+
+                    <!-- Camera Analytics -->
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Camera Analytics</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 15px;">
+                            <canvas id="attendanceChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">Recent Activity & Camera Alerts</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 15px;" id="activityFeed">
+                        <!-- Activity will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate User Modal -->
+    <div class="modal" id="generateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate New User</h2>
+                <button class="close-btn" onclick="closeGenerateModal()">&times;</button>
+            </div>
+            <form onsubmit="generateUser(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-control" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select class="form-control" id="userRole" required>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class/Grade (if student)</label>
+                    <input type="text" class="form-control" id="userClass" placeholder="e.g., 10B">
+                </div>
+                <div class="form-group">
+                    <label>Camera Access</label>
+                    <select class="form-control" id="cameraAccess">
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Generate Password</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" class="form-control" id="userPassword" value="AutoGenerate@123" readonly>
+                        <button type="button" class="btn" style="background: #f0f0f0;" onclick="generatePassword()">Generate</button>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" style="background: #f0f0f0;" onclick="closeGenerateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fullscreen Camera Modal -->
+    <div class="modal" id="fullscreenCameraModal">
+        <div class="modal-content camera-modal">
+            <div class="modal-header">
+                <h2 id="fullscreenStudentName">Student Camera Feed</h2>
+                <button class="close-btn" onclick="closeFullscreenCamera()">&times;</button>
+            </div>
+            <div class="fullscreen-camera">
+                <video id="fullscreenVideo" autoplay muted></video>
+            </div>
+            <div class="camera-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Attention Score</div>
+                    <div class="stat-number" id="attentionScore">95%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Time in Class</div>
+                    <div class="stat-number" id="timeInClass">45:32</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Engagement</div>
+                    <div class="stat-number" id="engagementLevel">High</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-camera" onclick="takeScreenshot()">📸 Take Screenshot</button>
+                <button class="btn btn-warning" onclick="sendAlert()">⚠️ Send Alert</button>
+                <button class="btn btn-success" onclick="markPresent()">✅ Mark Present</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Upload Modal -->
+    <div class="modal" id="bulkUploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Bulk Upload Users</h2>
+                <button class="close-btn" onclick="closeBulkUploadModal()">&times;</button>
+            </div>
+            <form onsubmit="bulkUpload(event)">
+                <div class="form-group">
+                    <label>Upload CSV File</label>
+                    <input type="file" class="form-control" accept=".csv" required>
+                </div>
+                <div class="form-group">
+                    <p style="color: #666;">Download template: <a href="#" onclick="downloadTemplate()">template.csv</a></p>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" style="background: #f0f0f0;" onclick="closeBulkUploadModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sample data with camera information
+        let users = [
+            { id: 1, name: 'John Smith', email: 'john.smith@school.com', role: 'admin', status: 'active', camera: 'online', lastActive: '2 min ago', class: '', attentionScore: 98 },
+            { id: 2, name: 'Sarah Johnson', email: 'sarah.j@school.com', role: 'teacher', status: 'active', camera: 'online', lastActive: '15 min ago', class: '10B', attentionScore: 95 },
+            { id: 3, name: 'Mike Brown', email: 'mike.b@school.com', role: 'student', status: 'active', camera: 'online', lastActive: '1 hour ago', class: '10B', attentionScore: 87 },
+            { id: 4, name: 'Emma Wilson', email: 'emma.w@school.com', role: 'student', status: 'active', camera: 'online', lastActive: '3 hours ago', class: '9A', attentionScore: 92 },
+            { id: 5, name: 'David Lee', email: 'david.l@school.com', role: 'student', status: 'inactive', camera: 'offline', lastActive: '2 days ago', class: '11C', attentionScore: 0 },
+            { id: 6, name: 'Lisa Chen', email: 'lisa.c@school.com', role: 'student', status: 'active', camera: 'online', lastActive: '5 min ago', class: '10B', attentionScore: 65 },
+            { id: 7, name: 'James Wilson', email: 'james.w@school.com', role: 'student', status: 'active', camera: 'online', lastActive: '10 min ago', class: '9A', attentionScore: 45 },
+            { id: 8, name: 'Anna Martinez', email: 'anna.m@school.com', role: 'student', status: 'active', camera: 'online', lastActive: '20 min ago', class: '10B', attentionScore: 88 },
+        ];
+
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let activeCameras = {};
+        let cameraInterval;
+
+        // Initialize camera feeds
+        function initCameras() {
+            // Simulate camera feeds for students
+            users.filter(u => u.role === 'student' && u.camera === 'online').forEach(student => {
+                if (!activeCameras[student.id]) {
+                    activeCameras[student.id] = {
+                        stream: null,
+                        status: 'online',
+                        attentionScore: student.attentionScore || Math.floor(Math.random() * 40) + 60
+                    };
+                }
+            });
+            updateCameraStats();
+        }
+
+        // Display users in table
+        function displayUsers() {
+            const tbody = document.getElementById('userTableBody');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredUsers = users.filter(user => {
+                const matchesSearch = user.name.toLowerCase().includes(searchTerm) || 
+                                    user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+                const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            document.getElementById('totalCount').textContent = filteredUsers.length;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedUsers = filteredUsers.slice(start, end);
+
+            document.getElementById('startCount').textContent = filteredUsers.length > 0 ? start + 1 : 0;
+            document.getElementById('endCount').textContent = Math.min(end, filteredUsers.length);
+
+            tbody.innerHTML = '';
+            paginatedUsers.forEach(user => {
+                const row = document.createElement('tr');
+                const cameraStatus = user.camera === 'online' ? '🟢 Online' : '🔴 Offline';
+                const cameraClass = user.camera === 'online' ? 'status-present' : 'status-absent';
+                
+                row.innerHTML = `
+                    <td><strong>${user.name}</strong></td>
+                    <td>${user.email}</td>
+                    <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                    <td><span style="color: ${user.status === 'active' ? '#009432' : '#e74c3c'};">${user.status}</span></td>
+                    <td><span class="${cameraClass}" style="padding: 4px 8px; border-radius: 50px;">${cameraStatus}</span></td>
+                    <td>${user.lastActive}</td>
+                    <td class="action-buttons">
+                        <button class="icon-btn view-btn" onclick="viewUser(${user.id})">👁️ View</button>
+                        ${user.role === 'student' ? `
+                            <button class="icon-btn camera-btn ${user.camera === 'online' ? 'active' : ''}" 
+                                    onclick="viewStudentCamera(${user.id})" 
+                                    ${user.camera === 'offline' ? 'disabled' : ''}>
+                                📹 Camera
+                            </button>
+                        ` : ''}
+                        <button class="icon-btn edit-btn" onclick="editUser(${user.id})">✏️ Edit</button>
+                        <button class="icon-btn delete-btn" onclick="deleteUser(${user.id})">🗑️ Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Display camera grid
+        function displayCameraGrid() {
+            const cameraGrid = document.getElementById('cameraGrid');
+            const classFilter = document.getElementById('classFilter').value;
+            
+            let students = users.filter(u => u.role === 'student' && u.camera === 'online');
+            
+            if (classFilter !== 'all') {
+                students = students.filter(s => s.class === classFilter);
+            }
+
+            cameraGrid.innerHTML = '';
+            
+            students.forEach(student => {
+                const attentionLevel = student.attentionScore || Math.floor(Math.random() * 40) + 60;
+                let statusClass = 'status-present';
+                let statusText = 'Present';
+                
+                if (attentionLevel < 50) {
+                    statusClass = 'status-attention';
+                    statusText = 'Needs Attention';
+                } else if (attentionLevel < 70) {
+                    statusClass = 'status-present';
+                    statusText = 'Low Engagement';
+                }
+
+                const feed = document.createElement('div');
+                feed.className = 'camera-feed';
+                feed.innerHTML = `
+                    <video id="cam-${student.id}" autoplay muted loop></video>
+                    <div class="camera-controls">
+                        <button class="cam-control-btn" onclick="toggleMute(${student.id})" title="Mute/Unmute">🔊</button>
+                        <button class="cam-control-btn" onclick="takeSnapshot(${student.id})" title="Take Snapshot">📸</button>
+                        <button class="cam-control-btn" onclick="toggleFullscreen(${student.id})" title="Fullscreen">⛶</button>
+                    </div>
+                    <div class="student-info">
+                        <span class="student-name">${student.name} (${student.class})</span>
+                        <span class="attendance-status ${statusClass}">${statusText} - ${attentionLevel}%</span>
+                    </div>
+                `;
+                cameraGrid.appendChild(feed);
+                
+                // Simulate camera stream
+                simulateCameraStream(`cam-${student.id}`, attentionLevel);
+            });
+
+            updateCameraStats();
+        }
+
+        // Simulate camera stream with colored background based on attention
+        function simulateCameraStream(videoId, attentionLevel) {
+            const video = document.getElementById(videoId);
+            if (!video) return;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+
+            function drawFrame() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Background color based on attention
+                const hue = attentionLevel > 70 ? 120 : attentionLevel > 40 ? 60 : 0;
+                ctx.fillStyle = `hsl(${hue}, 70%, ${30 + attentionLevel/3}%)`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw some "face" simulation
+                ctx.beginPath();
+                ctx.arc(320, 240, 150, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${hue}, 60%, 60%)`;
+                ctx.fill();
+                
+                // Eyes
+                ctx.beginPath();
+                ctx.arc(250, 180, 20, 0, Math.PI * 2);
+                ctx.arc(390, 180, 20, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFF';
+                ctx.fill();
+                
+                // Pupils (move based on attention)
+                const pupilOffset = attentionLevel < 50 ? 10 : 0;
+                ctx.beginPath();
+                ctx.arc(250 + pupilOffset, 180, 10, 0, Math.PI * 2);
+                ctx.arc(390 - pupilOffset, 180, 10, 0, Math.PI * 2);
+                ctx.fillStyle = '#000';
+                ctx.fill();
+                
+                // Mouth (smile based on attention)
+                ctx.beginPath();
+                ctx.strokeStyle = '#FFF';
+                ctx.lineWidth = 5;
+                if (attentionLevel > 70) {
+                    ctx.arc(320, 300, 40, 0, Math.PI);
+                } else if (attentionLevel > 40) {
+                    ctx.arc(320, 300, 40, 0.2, Math.PI - 0.2);
+                } else {
+                    ctx.arc(320, 340, 40, Math.PI, 0, true);
+                }
+                ctx.stroke();
+                
+                // Update video source
+                video.srcObject = canvas.captureStream(30);
+                
+                // Randomly update attention for next frame
+                if (Math.random() > 0.95) {
+                    attentionLevel = Math.max(20, Math.min(100, attentionLevel + (Math.random() - 0.5) * 20));
+                }
+                
+                requestAnimationFrame(drawFrame);
+            }
+            
+            drawFrame();
+        }
+
+        // View student camera in fullscreen
+        function viewStudentCamera(studentId) {
+            const student = users.find(u => u.id === studentId);
+            if (!student) return;
+            
+            document.getElementById('fullscreenStudentName').textContent = `${student.name}'s Camera Feed`;
+            document.getElementById('attentionScore').textContent = `${student.attentionScore || 85}%`;
+            document.getElementById('timeInClass').textContent = `${Math.floor(Math.random() * 60) + 10}:${Math.floor(Math.random() * 60)}`;
+            document.getElementById('engagementLevel').textContent = student.attentionScore > 70 ? 'High' : student.attentionScore > 40 ? 'Medium' : 'Low';
+            
+            const fullscreenModal = document.getElementById('fullscreenCameraModal');
+            fullscreenModal.classList.add('active');
+            
+            // Simulate fullscreen camera
+            const video = document.getElementById('fullscreenVideo');
+            simulateCameraStream('fullscreenVideo', student.attentionScore || 85);
+        }
+
+        function closeFullscreenCamera() {
+            document.getElementById('fullscreenCameraModal').classList.remove('active');
+            const video = document.getElementById('fullscreenVideo');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // Camera control functions
+        function toggleMute(studentId) {
+            const video = document.getElementById(`cam-${studentId}`);
+            if (video) {
+                video.muted = !video.muted;
+            }
+        }
+
+        function takeSnapshot(studentId) {
+            const video = document.getElementById(`cam-${studentId}`);
+            if (video) {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `snapshot-${studentId}-${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                
+                addActivity(`📸 Snapshot taken of student ID: ${studentId}`);
+            }
+        }
+
+        function toggleFullscreen(studentId) {
+            viewStudentCamera(studentId);
+        }
+
+        function toggleAllCameras() {
+            const students = users.filter(u => u.role === 'student');
+            students.forEach(student => {
+                student.camera = student.camera === 'online' ? 'offline' : 'online';
+            });
+            displayUsers();
+            displayCameraGrid();
+            updateCameraStats();
+            addActivity('📹 Camera status toggled for all students');
+        }
+
+        function refreshCameras() {
+            displayCameraGrid();
+            addActivity('🔄 Camera feeds refreshed');
+        }
+
+        function filterCameras() {
+            displayCameraGrid();
+        }
+
+        function updateCameraStats() {
+            const onlineCameras = users.filter(u => u.role === 'student' && u.camera === 'online').length;
+            const presentStudents = users.filter(u => u.role === 'student' && u.camera === 'online' && (u.attentionScore || 70) > 50).length;
+            const attentionNeeded = users.filter(u => u.role === 'student' && u.camera === 'online' && (u.attentionScore || 70) < 50).length;
+            const absent = users.filter(u => u.role === 'student' && u.camera === 'offline').length;
+            
+            document.getElementById('camerasOnline').textContent = onlineCameras;
+            document.getElementById('activeCamerasCount').textContent = onlineCameras;
+            document.getElementById('studentsPresentCount').textContent = presentStudents;
+            document.getElementById('attentionCount').textContent = attentionNeeded;
+            document.getElementById('absentCount').textContent = absent;
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            document.getElementById('usersTab').style.display = tabName === 'users' ? 'block' : 'none';
+            document.getElementById('camerasTab').style.display = tabName === 'cameras' ? 'block' : 'none';
+            document.getElementById('analyticsTab').style.display = tabName === 'analytics' ? 'block' : 'none';
+            
+            // Update button styles
+            const buttons = document.querySelectorAll('[onclick^="showTab"]');
+            buttons.forEach(btn => {
+                btn.style.background = '#f0f0f0';
+                btn.style.color = '#333';
+            });
+            
+            if (tabName === 'users') {
+                event.target.style.background = '#667eea';
+                event.target.style.color = 'white';
+                displayUsers();
+            } else if (tabName === 'cameras') {
+                event.target.style.background = '#667eea';
+                event.target.style.color = 'white';
+                displayCameraGrid();
+            } else if (tabName === 'analytics') {
+                event.target.style.background = '#667eea';
+                event.target.style.color = 'white';
+            }
+        }
+
+        // Activity feed
+        function addActivity(message) {
+            const feed = document.getElementById('activityFeed');
+            const time = new Date().toLocaleTimeString();
+            const activity = document.createElement('div');
+            activity.style.cssText = 'display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #e0e0e0;';
+            activity.innerHTML = `
+                <div>${message}</div>
+                <div style="color: #666;">${time}</div>
+            `;
+            feed.insertBefore(activity, feed.firstChild);
+            
+            // Keep only last 10 activities
+            if (feed.children.length > 10) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        // Filter functions
+        function filterUsers() {
+            currentPage = 1;
+            displayUsers();
+        }
+
+        // Pagination
+        function nextPage() {
+            const totalUsers = users.length;
+            if (currentPage * rowsPerPage < totalUsers) {
+                currentPage++;
+                displayUsers();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayUsers();
+            }
+        }
+
+        // Modal functions
+        function openGenerateModal() {
+            document.getElementById('generateModal').classList.add('active');
+        }
+
+        function closeGenerateModal() {
+            document.getElementById('generateModal').classList.remove('active');
+        }
+
+        function openBulkUploadModal() {
+            document.getElementById('bulkUploadModal').classList.add('active');
+        }
+
+        function closeBulkUploadModal() {
+            document.getElementById('bulkUploadModal').classList.remove('active');
+        }
+
+        // User CRUD operations
+        function generateUser(event) {
+            event.preventDefault();
+            
+            const newUser = {
+                id: users.length + 1,
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value,
+                status: 'active',
+                camera: document.getElementById('cameraAccess').value === 'enabled' ? 'online' : 'offline',
+                lastActive: 'Just now',
+                class: document.getElementById('userClass').value || '',
+                attentionScore: 85
+            };
+
+            users.push(newUser);
+            displayUsers();
+            updateCameraStats();
+            closeGenerateModal();
+            
+            addActivity(`👤 New user created: ${newUser.name}`);
+            
+            event.target.reset();
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                const user = users.find(u => u.id === userId);
+                users = users.filter(user => user.id !== userId);
+                displayUsers();
+                displayCameraGrid();
+                updateCameraStats();
+                addActivity(`🗑️ User deleted: ${user.name}`);
+            }
+        }
+
+        function viewUser(userId) {
+            const user = users.find(u => u.id === userId);
+            alert(`User Details:\nName: ${user.name}\nEmail: ${user.email}\nRole: ${user.role}\nStatus: ${user.status}\nCamera: ${user.camera}`);
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            const newName = prompt('Enter new name:', user.name);
+            if (newName) {
+                user.name = newName;
+                displayUsers();
+                displayCameraGrid();
+                addActivity(`✏️ User updated: ${user.name}`);
+            }
+        }
+
+        // Camera functions
+        function takeScreenshot() {
+            const video = document.getElementById('fullscreenVideo');
+            if (video) {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                
+                const link = document.createElement('a');
+                link.download = `screenshot-${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                
+                addActivity('📸 Screenshot taken');
+            }
+        }
+
+        function sendAlert() {
+            const studentName = document.getElementById('fullscreenStudentName').textContent.replace("'s Camera Feed", "");
+            alert(`Alert sent to ${studentName}`);
+            addActivity(`⚠️ Alert sent to ${studentName}`);
+        }
+
+        function markPresent() {
+            const studentName = document.getElementById('fullscreenStudentName').textContent.replace("'s Camera Feed", "");
+            alert(`${studentName} marked as present`);
+            addActivity(`✅ ${studentName} marked as present`);
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(users, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'users_data.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            addActivity('📥 Data exported');
+        }
+
+        // Bulk upload
+        function bulkUpload(event) {
+            event.preventDefault();
+            addActivity('📤 Bulk upload processed');
+            closeBulkUploadModal();
+        }
+
+        function downloadTemplate() {
+            const template = 'Name,Email,Role,Class,CameraAccess\nJohn Doe,john@school.com,student,10B,enabled\nJane Smith,jane@school.com,teacher,,enabled';
+            const blob = new Blob([template], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'user_template.csv';
+            a.click();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCameras();
+            displayUsers();
+            displayCameraGrid();
+            
+            // Initialize activity feed
+            addActivity('🚀 Dashboard initialized');
+            addActivity('📹 Camera system online');
+            
+            // Update stats periodically
+            setInterval(() => {
+                document.getElementById('activeToday').textContent = Math.floor(Math.random() * 50) + 30;
+                
+                // Randomly update attention scores
+                users.forEach(user => {
+                    if (user.role === 'student' && user.camera === 'online') {
+                        user.attentionScore = Math.max(20, Math.min(100, (user.attentionScore || 70) + (Math.random() - 0.5) * 10));
+                    }
+                });
+                
+                updateCameraStats();
+                if (document.getElementById('camerasTab').style.display !== 'none') {
+                    displayCameraGrid();
+                }
+            }, 5000);
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let modal of modals) {
+                if (event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
